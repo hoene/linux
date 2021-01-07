@@ -3095,6 +3095,13 @@ Params: led_gpio                GPIO for LED (default "17")
                                 "default-on")
 
 
+Name:   wm8960-soundcard
+Info:   Configures a WM8960 soundcard
+Load:   dtoverlay=wm8960-soundcard
+Params: <None>
+
+
+
 Troubleshooting
 ===============
 

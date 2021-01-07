@@ -83,6 +83,13 @@ config SND_BCM2708_SOC_HIFIBERRY_DIGI
         help
          Say Y or M if you want to add support for HifiBerry Digi S/PDIF output board.
 
+config SND_BCM2708_SOC_WM8960_SOUNDCARD
+        tristate "Support for a Raspberry PI WM8960 soundcard"
+        depends on SND_BCM2708_SOC_I2S || SND_BCM2835_SOC_I2S
+        select SND_SOC_WM8960
+        help
+         Say Y or M if you want to add support for a WM8960 soundcard.
+
 config SND_BCM2708_SOC_HIFIBERRY_AMP
         tristate "Support for the HifiBerry Amp"
         depends on SND_BCM2708_SOC_I2S || SND_BCM2835_SOC_I2S
