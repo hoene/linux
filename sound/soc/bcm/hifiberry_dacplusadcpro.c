@@ -357,23 +357,25 @@ static int snd_rpi_hifiberry_dacplusadcpro_update_rate_den(
 	struct snd_pcm_substream *substream, struct snd_pcm_hw_params *params)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	struct snd_soc_component *component = rtd->codec_dais[0]->component; /* only use DAC */
-	struct pcm512x_priv *pcm512x = snd_soc_component_get_drvdata(component);
 	struct snd_ratnum *rats_no_pll;
 	unsigned int num = 0, den = 0;
 	int err;
 
-	rats_no_pll = devm_kzalloc(rtd->dev, sizeof(*rats_no_pll), GFP_KERNEL);
+	rats_no_pll = devm_kzalloc(rtd->dev, sizeof(*rats_no_pll) * 2, GFP_KERNEL);
 	if (!rats_no_pll)
 		return -ENOMEM;
 
-	rats_no_pll->num = clk_get_rate(pcm512x->sclk) / 64;
-	rats_no_pll->den_min = 1;
-	rats_no_pll->den_max = 128;
-	rats_no_pll->den_step = 1;
+	rats_no_pll[0].num = CLK_44EN_RATE / 64;
+	rats_no_pll[0].den_min = 1;
+	rats_no_pll[0].den_max = 128;
+	rats_no_pll[0].den_step = 1;
+	rats_no_pll[1].num = CLK_48EN_RATE / 64;
+	rats_no_pll[1].den_min = 1;
+	rats_no_pll[1].den_max = 128;
+	rats_no_pll[1].den_step = 1;
 
 	err = snd_interval_ratnum(hw_param_interval(params,
-		SNDRV_PCM_HW_PARAM_RATE), 1, rats_no_pll, &num, &den);
+		SNDRV_PCM_HW_PARAM_RATE), 2, rats_no_pll, &num, &den);
 	if (err >= 0 && den) {
 		params->rate_num = num;
 		params->rate_den = den;
