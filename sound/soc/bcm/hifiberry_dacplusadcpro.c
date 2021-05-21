@@ -63,18 +63,18 @@ static const unsigned int pcm186x_adc_input_channel_sel_value[] = {
 
 static const char * const pcm186x_adcl_input_channel_sel_text[] = {
 	"No Select",
-	"VINL1[SE]",					/* Default for ADCL */
-	"VINL2[SE]",
-	"VINL2[SE] + VINL1[SE]",
-	"{VIN1P, VIN1M}[DIFF]"
+	"VINL1",					/* Default for ADCL */
+	"VINL2",
+	"VINL1plus2",
+	"VINL1diff"
 };
 
 static const char * const pcm186x_adcr_input_channel_sel_text[] = {
 	"No Select",
-	"VINR1[SE]",					/* Default for ADCR */
-	"VINR2[SE]",
-	"VINR2[SE] + VINR1[SE]",
-	"{VIN2P, VIN2M}[DIFF]"
+	"VINR1",					/* Default for ADCR */
+	"VINR2",
+	"VINR1plus2",
+	"VINR2diff"
 };
 
 static const struct soc_enum pcm186x_adc_input_channel_sel[] = {
@@ -519,6 +519,34 @@ static int snd_rpi_hifiberry_dacplusadcpro_probe(struct platform_device *pdev)
 	struct property *tpa_prop;
 	struct of_changeset ocs;
 
+	snd_rpi_hifiberry_dacplusadcpro.dev = &pdev->dev;
+	if (pdev->dev.of_node) {
+		struct device_node *i2s_node;
+		struct snd_soc_dai_link *dai;
+
+		dai = &snd_rpi_hifiberry_dacplusadcpro_dai[0];
+		i2s_node = of_parse_phandle(pdev->dev.of_node,
+			"i2s-controller", 0);
+		if (i2s_node) {
+			for (i = 0; i < card->num_links; i++) {
+				dai->cpus->dai_name = NULL;
+				dai->cpus->of_node = i2s_node;
+				dai->platforms->name = NULL;
+				dai->platforms->of_node = i2s_node;
+			}
+		}
+	}
+	digital_gain_0db_limit = !of_property_read_bool(
+		pdev->dev.of_node, "hifiberry-dacplusadcpro,24db_digital_gain");
+	slave = of_property_read_bool(pdev->dev.of_node,
+					"hifiberry-dacplusadcpro,slave");
+	leds_off = of_property_read_bool(pdev->dev.of_node,
+					"hifiberry-dacplusadcpro,leds_off");
+	ret = snd_soc_register_card(&snd_rpi_hifiberry_dacplusadcpro);
+	if (ret && ret != -EPROBE_DEFER)
+		dev_err(&pdev->dev,
+			"snd_soc_register_card() failed: %d\n", ret);
+
 	/* probe for head phone amp */
 	ret = hb_hp_detect();
 	if (ret < 0)
@@ -550,33 +578,6 @@ static int snd_rpi_hifiberry_dacplusadcpro_probe(struct platform_device *pdev)
 		}
 	}
 
-	snd_rpi_hifiberry_dacplusadcpro.dev = &pdev->dev;
-	if (pdev->dev.of_node) {
-		struct device_node *i2s_node;
-		struct snd_soc_dai_link *dai;
-
-		dai = &snd_rpi_hifiberry_dacplusadcpro_dai[0];
-		i2s_node = of_parse_phandle(pdev->dev.of_node,
-			"i2s-controller", 0);
-		if (i2s_node) {
-			for (i = 0; i < card->num_links; i++) {
-				dai->cpus->dai_name = NULL;
-				dai->cpus->of_node = i2s_node;
-				dai->platforms->name = NULL;
-				dai->platforms->of_node = i2s_node;
-			}
-		}
-	}
-	digital_gain_0db_limit = !of_property_read_bool(
-		pdev->dev.of_node, "hifiberry-dacplusadcpro,24db_digital_gain");
-	slave = of_property_read_bool(pdev->dev.of_node,
-					"hifiberry-dacplusadcpro,slave");
-	leds_off = of_property_read_bool(pdev->dev.of_node,
-					"hifiberry-dacplusadcpro,leds_off");
-	ret = snd_soc_register_card(&snd_rpi_hifiberry_dacplusadcpro);
-	if (ret && ret != -EPROBE_DEFER)
-		dev_err(&pdev->dev,
-			"snd_soc_register_card() failed: %d\n", ret);
 
 	return ret;
 }
