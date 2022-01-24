@@ -63,18 +63,18 @@ static const unsigned int pcm186x_adc_input_channel_sel_value[] = {
 
 static const char * const pcm186x_adcl_input_channel_sel_text[] = {
 	"No Select",
-	"VINL1[SE]",					/* Default for ADCL */
-	"VINL2[SE]",
-	"VINL2[SE] + VINL1[SE]",
-	"{VIN1P, VIN1M}[DIFF]"
+	"VINL1_SE",					/* Default for ADCL */
+	"VINL2_SE",
+	"VINL2_SE + VINL1_SE",
+	"VIN1P_VIN1M_DIFF"
 };
 
 static const char * const pcm186x_adcr_input_channel_sel_text[] = {
 	"No Select",
-	"VINR1[SE]",					/* Default for ADCR */
-	"VINR2[SE]",
-	"VINR2[SE] + VINR1[SE]",
-	"{VIN2P, VIN2M}[DIFF]"
+	"VINR1_SE",					/* Default for ADCR */
+	"VINR2_SE",
+	"VINR2_SE + VINR1_SE",
+	"VIN2P_VIN2M_DIFF"
 };
 
 static const struct soc_enum pcm186x_adc_input_channel_sel[] = {
